@@ -211,9 +211,9 @@ python ourmethod_eval.py --dataset olid --seeds 41,42,43,44,45
 If you find this work useful, please cite our paper:
 
 ```txt
-@article{yan2026beyond,
+@article{liu2026beyond,
   title={Beyond a Single Perspective: Text Anomaly Detection with Multi-View Language Representations},
-  author={Yan, Kehan and others},
+  author={Yixin Liu, Kehan Yan, Shiyuan Li and others},
   journal={arXiv preprint arXiv:2601.17786},
   year={2026}
 }
@@ -263,5 +263,6 @@ For example, CVDD/DATE/FATE.
 -> This is due to network restrictions in some regions (e.g., without VPN access).
 
 We recommend using the Hugging Face mirror by running: `export HF_ENDPOINT=https://hf-mirror.com`
+
 
 
