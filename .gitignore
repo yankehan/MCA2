@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment / secrets
+.env
+.env.*
+*.secret
+
+# Data files (large / generated)
+*.npy
+*.npz
+*.pkl
+*.h5
+*.hdf5
+*.jsonl
+
+# Embedding batch outputs
+embeddings/*/
+
+# Results
+*.xlsx
+*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Conda
+*.conda

@@ -18,8 +18,8 @@ texts = loaded['data'].tolist()
 labels = loaded['label'].tolist()
 start_time = time.time()
 client = OpenAI(
-    base_url= "https://api.chatanywhere.tech/v1",
-    api_key = 'xxx'
+    base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+    api_key=os.environ["OPENAI_API_KEY"],
 )
 tokenizer = tiktoken.encoding_for_model("text-embedding-3-large")
 MAX_TOKENS_PER_TEXT = 8191
@@ -120,7 +120,7 @@ for i in range(len(batches)):
     if not os.path.exists(bf):
         print(f"Warning: Missing batch file: {bf}. It will be skipped during merge.")
         continue
-    batch_data = np.load(bf, allow_pickle=True)
+    batch_data = np.load(bf)
     if first_batch:
         embeddings = batch_data
         first_batch = False
