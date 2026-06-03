@@ -51,7 +51,12 @@ def split_embeddings(dataset_name, data_dir='../data', embeddings_dir='./'):
     print(f"\n开始分割嵌入文件...")
     for npy_file in npy_files:
         print(f"\n处理: {npy_file.name}")
-        embeddings = np.load(npy_file)
+        try:
+            embeddings = np.load(npy_file)
+        except Exception as e:
+            print(f"  错误: 无法加载 {npy_file.name}: {e}")
+            print(f"  跳过此文件...")
+            continue
         print(f"  原始形状: {embeddings.shape}")
         if embeddings.shape[0] != total_count:
             print(f"  警告: 嵌入样本数 ({embeddings.shape[0]}) 与预期 ({total_count}) 不匹配!")

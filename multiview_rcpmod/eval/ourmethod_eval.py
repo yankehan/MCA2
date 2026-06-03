@@ -135,6 +135,7 @@ def main(seed=42):
     print(f"设备: {device}")
     print(f"种子: {seed}")
     results_list = []
+    failed_combos = []
     for combo_name, view_names in VIEW_COMBINATIONS.items():
         print("\n" + "=" * 80)
         print(f"正在评估: {combo_name}")
@@ -198,7 +199,12 @@ def main(seed=42):
             print(f"\n处理 {combo_name} 时出错: {str(e)}")
             import traceback
             traceback.print_exc()
+            failed_combos.append((combo_name, str(e)))
             continue
+    if failed_combos:
+        print(f"\nWARNING: {len(failed_combos)}/{len(VIEW_COMBINATIONS)} combinations failed:")
+        for name, err in failed_combos:
+            print(f"  - {name}: {err}")
     print("\n" + "=" * 80)
     print("汇总结果")
     print("=" * 80)
@@ -209,13 +215,19 @@ def main(seed=42):
     auroc_cols = ['Combination', 'Views', 'Num_Views', 'Total_Dim', 'OurMethod_AUC', 'Train_Time']
     auroc_df = results_df[auroc_cols].copy()
     output_file = os.path.join(eval_dir, f"{DATA_NAME}_ourmethod_results.xlsx")
-    auroc_df.to_excel(output_file, index=False)
-    print(f"\n✓ 完整结果已保存至 {output_file}")
+    try:
+        auroc_df.to_excel(output_file, index=False)
+        print(f"\n✓ 完整结果已保存至 {output_file}")
+    except Exception as e:
+        print(f"\nWARNING: Failed to save {output_file}: {type(e).__name__}: {e}")
     auprc_cols = ['Combination', 'Views', 'Num_Views', 'Total_Dim', 'OurMethod_AUPRC', 'Train_Time']
     auprc_df = results_df[auprc_cols].copy()
     auprc_output_file = os.path.join(eval_dir, f"auprc_{DATA_NAME}_ourmethod_results.xlsx")
-    auprc_df.to_excel(auprc_output_file, index=False)
-    print(f"✓ AUPRC结果已保存至 {auprc_output_file}")
+    try:
+        auprc_df.to_excel(auprc_output_file, index=False)
+        print(f"✓ AUPRC结果已保存至 {auprc_output_file}")
+    except Exception as e:
+        print(f"WARNING: Failed to save {auprc_output_file}: {type(e).__name__}: {e}")
     print("\n" + "=" * 80)
     print("分析")
     print("=" * 80)
@@ -239,6 +251,7 @@ def main_multi(seeds):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"设备: {device}")
     results_list = []
+    failed_combos = []
     for combo_name, view_names in VIEW_COMBINATIONS.items():
         print("\n" + "=" * 80)
         print(f"正在评估: {combo_name}")
@@ -313,7 +326,12 @@ def main_multi(seeds):
             print(f"\n处理 {combo_name} 时出错: {str(e)}")
             import traceback
             traceback.print_exc()
+            failed_combos.append((combo_name, str(e)))
             continue
+    if failed_combos:
+        print(f"\nWARNING: {len(failed_combos)}/{len(VIEW_COMBINATIONS)} combinations failed:")
+        for name, err in failed_combos:
+            print(f"  - {name}: {err}")
     print("\n" + "=" * 80)
     print("汇总结果 (均值 / 方差分列)")
     print("=" * 80)
@@ -336,8 +354,11 @@ def main_multi(seeds):
             'Seeds'
         ]
         output_file = os.path.join(eval_dir, f"{DATA_NAME}_ourmethod_results_seeds_{seeds_tag}.xlsx")
-        results_df[auroc_cols].to_excel(output_file, index=False)
-        print(f"\n✓ 完整结果已保存至 {output_file}")
+        try:
+            results_df[auroc_cols].to_excel(output_file, index=False)
+            print(f"\n✓ 完整结果已保存至 {output_file}")
+        except Exception as e:
+            print(f"\nWARNING: Failed to save {output_file}: {type(e).__name__}: {e}")
         auprc_cols = [
             'Combination', 'Views', 'Num_Views', 'Total_Dim',
             'OurMethod_AUPRC_Mean', 'OurMethod_AUPRC_Var',
@@ -346,8 +367,11 @@ def main_multi(seeds):
         ]
         auprc_df = results_df[auprc_cols].copy()
         auprc_output_file = os.path.join(eval_dir, f"auprc_{DATA_NAME}_ourmethod_results_seeds_{seeds_tag}.xlsx")
-        auprc_df.to_excel(auprc_output_file, index=False)
-        print(f"✓ AUPRC结果已保存至 {auprc_output_file}")
+        try:
+            auprc_df.to_excel(auprc_output_file, index=False)
+            print(f"✓ AUPRC结果已保存至 {auprc_output_file}")
+        except Exception as e:
+            print(f"WARNING: Failed to save {auprc_output_file}: {type(e).__name__}: {e}")
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='自定义多视图方法评估 - 训练集/测试集分离')
     parser.add_argument('--dataset', type=str, default="olid,covid_fake,liar2,hate_speech,email_spam,smsspam,bbc,movie_review,N24News,agnews",

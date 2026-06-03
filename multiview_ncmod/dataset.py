@@ -33,14 +33,29 @@ class NCMODDataset(Dataset):
         file_path = os.path.join(self.embeddings_dir, self.data_name, f"{self.data_name}-{self.split}", file_name)
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Embedding file not found: {file_path}")
-        return np.load(file_path)
+        try:
+            return np.load(file_path)
+        except Exception as e:
+            raise IOError(f"Failed to load embedding file {file_path}: {e}") from e
     def load_labels(self):
         data_path = f'data/{self.data_name}_{self.split}_data.jsonl'
         if os.path.exists(data_path):
             labels = []
             with open(data_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    item = json.loads(line)
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        item = json.loads(line)
+                    except json.JSONDecodeError as e:
+                        raise ValueError(
+                            f"Malformed JSON at line {line_num} in {data_path}: {e}"
+                        ) from e
+                    if 'label' not in item:
+                        raise KeyError(
+                            f"Missing 'label' key at line {line_num} in {data_path}"
+                        )
                     labels.append(item['label'])
             labels = np.array(labels)
             return torch.tensor(labels, dtype=torch.long)

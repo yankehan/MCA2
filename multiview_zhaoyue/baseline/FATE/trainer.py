@@ -15,7 +15,7 @@ def set_seed(seed: int = 42) -> None:
     try:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    except Exception:
+    except AttributeError:
         pass
 @torch.no_grad()
 def _predict_scores(model, dataloader, device: torch.device, use_amp: bool = True):

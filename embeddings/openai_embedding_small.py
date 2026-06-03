@@ -82,9 +82,11 @@ def _request_embeddings(text_list, max_retries: int = 8):
 def _embed_with_fallback(text_list, max_retries: int = 8):
     try:
         return _request_embeddings(text_list, max_retries=max_retries)
-    except Exception:
+    except Exception as e:
         if len(text_list) <= 1:
+            print(f"\n  WARNING: Embedding failed for 1 text after all retries: {type(e).__name__}: {e}. Filling with NaN.")
             return np.full((len(text_list), DEFAULT_EMBEDDING_DIM), np.nan, dtype=np.float32)
+        print(f"\n  Batch of {len(text_list)} failed ({type(e).__name__}), splitting in half and retrying...")
         mid = len(text_list) // 2
         left = _embed_with_fallback(text_list[:mid], max_retries=max_retries)
         right = _embed_with_fallback(text_list[mid:], max_retries=max_retries)
@@ -128,5 +130,8 @@ for i in range(len(batches)):
         embeddings = np.vstack([embeddings, batch_data])
     if (i + 1) % 10 == 0 or i == len(batches) - 1:
         print(f"  Merged {i + 1}/{len(batches)} batches")
+nan_count = np.isnan(embeddings).any(axis=1).sum()
+if nan_count > 0:
+    print(f"WARNING: {nan_count}/{embeddings.shape[0]} embeddings contain NaN values (failed API calls).")
 np.save(save_path, embeddings)
 print(save_path,"successful!")

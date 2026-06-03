@@ -41,7 +41,8 @@ def _save_results_df(output_dir: str, filename_no_ext: str, df: pd.DataFrame) ->
         df.to_excel(out_xlsx, index=False, engine='openpyxl')
         logging.info(f"\n✓ Results saved to: {out_xlsx}")
         return out_xlsx
-    except Exception:
+    except Exception as e:
+        logging.warning(f"Excel save failed ({type(e).__name__}: {e}), falling back to CSV")
         out_csv = os.path.join(output_dir, f"{filename_no_ext}.csv")
         df.to_csv(out_csv, index=False)
         logging.info(f"\n✓ Results saved to: {out_csv}")

@@ -205,6 +205,7 @@ def main(seed=42):
     print(f"Seed: {seed}")
     results_list = []
     results_list_auprc = []
+    failed_combos = []
     for combo_name, view_names in VIEW_COMBINATIONS.items():
         print("\n" + "=" * 80)
         print(f"Evaluating combination: {combo_name}")
@@ -268,7 +269,12 @@ def main(seed=42):
             print(f"\nError processing {combo_name}: {str(e)}")
             import traceback
             traceback.print_exc()
+            failed_combos.append((combo_name, str(e)))
             continue
+    if failed_combos:
+        print(f"\nWARNING: {len(failed_combos)}/{len(VIEW_COMBINATIONS)} combinations failed:")
+        for name, err in failed_combos:
+            print(f"  - {name}: {err}")
     print("\n" + "=" * 80)
     print("Summary Results")
     print("=" * 80)
@@ -314,6 +320,7 @@ def main_multi(seeds):
     print(f"Device: {device}")
     results_list = []
     results_list_auprc = []
+    failed_combos = []
     for combo_name, view_names in VIEW_COMBINATIONS.items():
         print("\n" + "=" * 80)
         print(f"Evaluating combination: {combo_name}")
@@ -398,7 +405,12 @@ def main_multi(seeds):
             print(f"\nError processing {combo_name}: {str(e)}")
             import traceback
             traceback.print_exc()
+            failed_combos.append((combo_name, str(e)))
             continue
+    if failed_combos:
+        print(f"\nWARNING: {len(failed_combos)}/{len(VIEW_COMBINATIONS)} combinations failed:")
+        for name, err in failed_combos:
+            print(f"  - {name}: {err}")
     print("\n" + "=" * 80)
     print("Summary Results (Mean ± Variance)")
     print("=" * 80)

@@ -193,6 +193,7 @@ def run_single_experiment(data_name, seed, device, use_dataset_config=True):
     print(f"{'='*60}")
     config = get_dataset_config(data_name, use_dataset_config)
     results_list = []
+    failed_combos = []
     for combo_name, view_names in VIEW_COMBINATIONS.items():
         print(f"\n正在评估: {combo_name}")
         print(f"视图: {view_names}")
@@ -215,7 +216,12 @@ def run_single_experiment(data_name, seed, device, use_dataset_config=True):
             print(f"✗ 处理 {combo_name} 时出错: {str(e)}")
             import traceback
             traceback.print_exc()
+            failed_combos.append((combo_name, str(e)))
             continue
+    if failed_combos:
+        print(f"\nWARNING: {len(failed_combos)}/{len(VIEW_COMBINATIONS)} combinations failed:")
+        for name, err in failed_combos:
+            print(f"  - {name}: {err}")
     return results_list
 def main(datasets, seeds, use_dataset_config=True):
     print("=" * 80)
@@ -266,12 +272,18 @@ def main(datasets, seeds, use_dataset_config=True):
         results_df = pd.DataFrame(aggregated_results)
         print("\n" + results_df.to_string(index=False, float_format=lambda x: f'{x:.4f}'))
         output_file = f'multiview_ncmod/NCMOD_{data_name}_results.xlsx'
-        results_df.to_excel(output_file, index=False, float_format='%.4f')
-        print(f"\n✓ AUROC结果已保存至 {output_file}")
+        try:
+            results_df.to_excel(output_file, index=False, float_format='%.4f')
+            print(f"\n✓ AUROC结果已保存至 {output_file}")
+        except Exception as e:
+            print(f"\nWARNING: Failed to save {output_file}: {type(e).__name__}: {e}")
         results_df_auprc = pd.DataFrame(aggregated_results_auprc)
         output_file_auprc = f'multiview_ncmod/auprc_NCMOD_{data_name}_results.xlsx'
-        results_df_auprc.to_excel(output_file_auprc, index=False, float_format='%.4f')
-        print(f"✓ AUPRC结果已保存至 {output_file_auprc}")
+        try:
+            results_df_auprc.to_excel(output_file_auprc, index=False, float_format='%.4f')
+            print(f"✓ AUPRC结果已保存至 {output_file_auprc}")
+        except Exception as e:
+            print(f"WARNING: Failed to save {output_file_auprc}: {type(e).__name__}: {e}")
         if not results_df.empty:
             best_idx = results_df['AUC_Mean'].idxmax()
             best_result = results_df.iloc[best_idx]

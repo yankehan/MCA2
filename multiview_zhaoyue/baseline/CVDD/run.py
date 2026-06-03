@@ -12,8 +12,8 @@ def _set_random_seed(seed: int) -> None:
     try:
         import numpy as np
         np.random.seed(seed)
-    except Exception:
-        pass
+    except ImportError:
+        print("WARNING: numpy not available, skipping numpy seed setting")
     try:
         import torch
         torch.manual_seed(seed)
@@ -22,10 +22,10 @@ def _set_random_seed(seed: int) -> None:
         try:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
-        except Exception:
+        except AttributeError:
             pass
-    except Exception:
-        return
+    except ImportError:
+        print("WARNING: torch not available, skipping torch seed setting")
 if __package__ is None or __package__ == "":
     _this_dir = os.path.dirname(os.path.abspath(__file__))
     _repo_root = os.path.abspath(os.path.join(_this_dir, "..", "..", ".."))
@@ -45,7 +45,8 @@ def _save_all_datasets_excel_or_csv(out_dir: str, rows: List[dict]):
         df = pd.DataFrame(rows)
         df.to_excel(out_xlsx, index=False)
         return out_xlsx
-    except Exception:
+    except Exception as e:
+        print(f"WARNING: Excel save failed ({type(e).__name__}: {e}), falling back to CSV")
         import csv
         if len(rows) == 0:
             with open(out_csv, "w", newline="", encoding="utf-8") as f:
@@ -66,7 +67,8 @@ def _save_all_datasets_excel_or_csv_auprc(out_dir: str, rows: List[dict]):
         df = pd.DataFrame(rows)
         df.to_excel(out_xlsx, index=False)
         return out_xlsx
-    except Exception:
+    except Exception as e:
+        print(f"WARNING: Excel save failed ({type(e).__name__}: {e}), falling back to CSV")
         import csv
         if len(rows) == 0:
             with open(out_csv, "w", newline="", encoding="utf-8") as f:
@@ -88,7 +90,8 @@ def _save_one_dataset_excel_or_csv(out_dir: str, dataset: str, row: dict):
         df = pd.DataFrame(rows)
         df.to_excel(out_xlsx, index=False)
         return out_xlsx
-    except Exception:
+    except Exception as e:
+        print(f"WARNING: Excel save failed ({type(e).__name__}: {e}), falling back to CSV")
         import csv
         with open(out_csv, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -105,7 +108,8 @@ def _save_one_dataset_excel_or_csv_auprc(out_dir: str, dataset: str, row: dict):
         df = pd.DataFrame(rows)
         df.to_excel(out_xlsx, index=False)
         return out_xlsx
-    except Exception:
+    except Exception as e:
+        print(f"WARNING: Excel save failed ({type(e).__name__}: {e}), falling back to CSV")
         import csv
         with open(out_csv, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))

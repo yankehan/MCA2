@@ -7,8 +7,8 @@ def set_seed(seed: int = 42) -> None:
     try:
         import numpy as np
         np.random.seed(int(seed))
-    except Exception:
-        pass
+    except ImportError:
+        print("WARNING: numpy not available, skipping numpy seed setting")
     try:
         import torch
         torch.manual_seed(int(seed))
@@ -17,10 +17,10 @@ def set_seed(seed: int = 42) -> None:
         try:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
-        except Exception:
+        except AttributeError:
             pass
-    except Exception:
-        return
+    except ImportError:
+        print("WARNING: torch not available, skipping torch seed setting")
 def set_seed_42() -> None:
     set_seed(42)
 def _read_txt_lines(path: str) -> List[str]:

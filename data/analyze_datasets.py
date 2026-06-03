@@ -51,7 +51,9 @@ def analyze_dataset(file_path):
         }
         return stats
     except Exception as e:
+        import traceback
         print(f"  错误: {str(e)}")
+        traceback.print_exc()
         return None
 
 def print_stats(stats):
